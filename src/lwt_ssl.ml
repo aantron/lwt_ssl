@@ -161,6 +161,13 @@ let wait_write (fd, s) =
     Plain -> Lwt_unix.wait_write fd
   | SSL _ -> Lwt_unix.yield ()
 
+let close_notify (fd, s) =
+  match s with
+    Plain ->
+    Lwt.fail_invalid_arg
+      "Lwt_ssl.close_notify: Expected SSL, but got Plain connection"
+  | SSL s -> repeat_call fd (fun () -> Ssl.close_notify s)
+
 let ssl_shutdown (fd, s) =
   match s with
     Plain -> Lwt.return_unit
